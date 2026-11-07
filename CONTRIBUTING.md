@@ -319,3 +319,80 @@ seller-facing route, add a test proving seller A cannot read seller B's data.
 - Propose architecture changes with a draft ADR before writing code.
 - If you are blocked, say so early — do not silently work around a broken hook,
   failing check or unclear requirement.
+
+## 14. Working on GitHub Issues
+
+This is the step-by-step workflow for picking up an issue and getting it merged.
+Follow it in order.
+
+### 1. Pick an issue
+
+- Only work on an issue that is **assigned to you**. If you want one that is not
+  assigned, comment on it and wait for a maintainer to assign it.
+- Note the issue ID in the title (for example `BE-W1-03`). You will use it in your
+  branch name and pull request.
+
+### 2. Check its prerequisites
+
+- Read the whole issue: summary, files, and acceptance criteria.
+- Check the **Depends on** line. If a listed issue is not merged yet, do not start
+  — ask in the issue whether you should wait or coordinate.
+- Make sure you can run the project locally (see [First-time setup](#2-first-time-setup)).
+
+### 3. Ask questions before starting
+
+If anything is unclear — scope, files, expected behaviour — comment on the issue
+**before** writing code. It is much cheaper to clarify first than to rework a PR.
+
+### 4. Create a branch
+
+Start from an up-to-date `main` and include the issue ID in the branch name
+(see [Branch naming](#branch-naming)):
+
+```bash
+git checkout main
+git pull
+git checkout -b feat/BE-W1-03-medusa-config
+```
+
+Every branch for an issue must contain its issue ID, e.g. `BE-W1-03-medusa-config`.
+
+### 5. Make your changes
+
+- Change only what the issue asks for. Keep commits small and use
+  [Conventional Commits](#commit-messages).
+- Run the four local checks before pushing:
+
+```bash
+npm run lint           # ESLint
+npm run format:check   # Prettier check
+npm run typecheck      # TypeScript (tsc --noEmit)
+npm test               # Vitest unit tests
+```
+
+Fix anything that fails (`npm run lint:fix` and `npm run format` can help).
+
+### 6. Open a pull request
+
+```bash
+git push -u origin feat/BE-W1-03-medusa-config
+```
+
+Then open a pull request against `main` on GitHub and fill in the
+[PR template](.github/pull_request_template.md):
+
+- **Link the issue.** Put the issue ID in the PR title (e.g.
+  `docs: BE-W1-03 document issue and PR workflow`) and add `Closes #<issue-number>`
+  in the description so GitHub links the PR and closes the issue on merge.
+- **Describe the changes** — what you changed and why.
+- **List the tests you ran** — e.g. the four checks above, plus any manual testing.
+- **Request review** from a [CODEOWNER](.github/CODEOWNERS) using the
+  "Reviewers" panel.
+
+### 7. Respond to review and merge
+
+- Push fixes to the same branch and re-request review (new commits dismiss
+  earlier approvals).
+- Once approved and CI is green, the PR is merged using the squash-merge rule in
+  [Pull requests](#8-pull-requests): squash-merge into `main` with a Conventional
+  Commit squash message, then delete the branch.
