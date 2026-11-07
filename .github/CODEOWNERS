@@ -1,0 +1,39 @@
+# CODEOWNERS — requested for review automatically on every pull request.
+#
+# NOTE FOR MAINTAINERS: `@Haaflah` is the placeholder owner taken from the LICENSE
+# copyright line. Replace it with the real maintainers / GitHub team before
+# enabling "Require review from Code Owners" in branch protection, otherwise
+# review requests will fail. See CONTRIBUTING.md §10.
+#
+# Syntax: https://docs.github.com/articles/about-code-owners
+# Last matching pattern wins, so keep specific paths below general ones.
+
+# Default owner for everything.
+*                                       @Haaflah
+
+# Architecture decisions need an explicit sign-off from a lead.
+/docs/adr/                              @Haaflah
+
+# Commerce engine configuration and module wiring.
+/medusa-config.ts                       @Haaflah
+/src/modules/                           @Haaflah
+/src/links/                             @Haaflah
+
+# Database migrations — schema ownership is per issue (CONTRIBUTING.md §11).
+/src/modules/*/migrations/              @Haaflah
+
+# CI, dependency and tooling changes.
+/.github/                               @Haaflah
+/package.json                           @Haaflah
+/package-lock.json                      @Haaflah
+/tsconfig.json                          @Haaflah
+/eslint.config.mjs                      @Haaflah
+
+# Local environment and container setup.
+/docker-compose.yml                     @Haaflah
+/Dockerfile                             @Haaflah
+/.env.example                           @Haaflah
+/src/lib/env.ts                         @Haaflah
+
+# API contract — once it exists, changes must be reviewed deliberately.
+/contracts/                             @Haaflah

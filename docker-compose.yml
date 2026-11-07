@@ -1,0 +1,124 @@
+# Waslu backend — local development environment.
+#
+#   cp .env.example .env
+#   docker compose up --build
+#
+# Starts PostgreSQL, Redis, runs database migrations once, then starts the
+# backend with hot reload. No manual database setup is needed.
+#
+# Services talk to each other by SERVICE NAME (`postgres`, `redis`), never
+# `localhost` — inside a container, localhost is the container itself.
+
+name: waslu-backend
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-waslu}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-waslu}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-waslu} -d ${POSTGRES_DB:-waslu}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    # appendonly: persist the stream data Medusa's event bus and workflow engine
+    #   write, so a restart does not lose in-flight events.
+    # noeviction: Medusa requires that Redis never silently drops keys under
+    #   memory pressure — evicting event-bus data would lose events.
+    command: >
+      redis-server
+      --appendonly yes
+      --maxmemory-policy noeviction
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  # One-shot migration runner. Keeping this separate from the backend means
+  # migrations run exactly once, never concurrently, even if the backend is
+  # scaled or restarted. The backend waits for it to finish successfully.
+  migrate:
+    build:
+      context: .
+    image: waslu-backend:dev
+    restart: "no"
+    env_file: .env
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgres://${POSTGRES_USER:-waslu}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-waslu}
+      REDIS_URL: redis://redis:6379
+    command: ["npx", "medusa", "db:migrate"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  backend:
+    build:
+      context: .
+    image: waslu-backend:dev
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      NODE_ENV: development
+      PORT: 9000
+      # Service names, not localhost — this is the container-to-container path.
+      DATABASE_URL: postgres://${POSTGRES_USER:-waslu}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-waslu}
+      REDIS_URL: redis://redis:6379
+    command: ["npm", "run", "dev"]
+    ports:
+      - "${PORT:-9000}:9000"
+    volumes:
+      # Bind-mount the project for hot reload...
+      - .:/app
+      # ...but keep the image's node_modules. Without this anonymous volume the
+      # host's node_modules (possibly Windows-native binaries) would shadow the
+      # Linux ones installed in the image.
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      # Node 24 has a global fetch, so no curl/wget needed in the image.
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://localhost:9000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+
+volumes:
+  postgres_data:
+  redis_data:

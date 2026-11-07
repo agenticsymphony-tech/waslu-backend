@@ -1,0 +1,59 @@
+{
+  "name": "waslu-backend",
+  "version": "0.1.0",
+  "description": "Waslu backend — multi-tenant commerce platform built on Medusa v2.",
+  "license": "MIT",
+  "private": true,
+  "engines": {
+    "node": ">=22.22.0"
+  },
+  "scripts": {
+    "dev": "medusa develop",
+    "build": "medusa build",
+    "start": "medusa start",
+    "seed": "medusa exec ./src/scripts/seed.ts",
+    "db:migrate": "medusa db:migrate",
+    "db:generate": "medusa db:generate",
+    "db:rollback": "medusa db:rollback",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "@medusajs/admin-sdk": "2.22.4",
+    "@medusajs/cli": "2.22.4",
+    "@medusajs/framework": "2.22.4",
+    "@medusajs/medusa": "2.22.4",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@swc/core": "1.15.11",
+    "@types/node": "24.19.2",
+    "@types/react": "18.3.27",
+    "@types/react-dom": "18.3.7",
+    "eslint": "9.39.5",
+    "eslint-config-prettier": "10.1.8",
+    "husky": "9.1.7",
+    "lint-staged": "17.6.0",
+    "prettier": "3.9.10",
+    "ts-node": "10.9.2",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.72.1",
+    "vitest": "3.2.7"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,mjs,cjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml,css}": [
+      "prettier --write"
+    ]
+  }
+}

@@ -1,0 +1,8 @@
+node_modules/
+.medusa/
+.cache/
+coverage/
+dist/
+static/
+package-lock.json
+yarn.lock

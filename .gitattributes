@@ -1,0 +1,15 @@
+# Normalize line endings so Windows, macOS and Linux contributors produce identical diffs.
+* text=auto eol=lf
+
+# Shell scripts must always use LF, or they break inside Linux containers.
+*.sh text eol=lf
+Dockerfile text eol=lf
+
+# Binary assets — never diff or convert these.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.woff2 binary

@@ -147,3 +147,16 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+
+# Medusa v2 — build output and generated types (NOT `dist`, see tsconfig outDir)
+.medusa/
+.cache/
+
+# Local file uploads (Medusa local File Module provider, development only)
+static/
+
+# Docker — local overrides and volumes
+docker-compose.override.yml
+
+# Vitest
+.vitest/

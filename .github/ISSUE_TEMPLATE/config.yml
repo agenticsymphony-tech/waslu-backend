@@ -1,0 +1,7 @@
+# Issue template chooser.
+#
+# Blank issues stay enabled so contributors can ask questions that are neither a
+# bug nor a feature. Add `contact_links` here once the project's real discussion
+# venue exists (Discussions URL, chat invite, or support address) — do not point
+# contributors at another project's tracker.
+blank_issues_enabled: true
